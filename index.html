@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>반도체 도핑의 원리 - 미션형 화학 실험실</title>
+  <!-- Google Fonts: Outfit & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Intro Welcome Overlay -->
+  <div class="intro-overlay" id="intro-screen">
+    <div class="intro-card">
+      <div class="intro-icon">⚡</div>
+      <h1>반도체 도핑 화학 실험실</h1>
+      <p class="subtitle">Silicon Semiconductor Doping Interactive Lab</p>
+      <div class="intro-body">
+        <p>현대 정보 사회의 뼈대인 <strong>SSD NAND 플래시 메모리</strong>와 <strong>CPU CPU 프로세서</strong>는 모두 순수 실리콘 반도체에 미세한 화학 물질을 첨가하는 <strong>'도핑(Doping)'</strong> 공정으로 제작됩니다.</p>
+        <p>본 실험실에서는 5가 원소(인 P)와 3가 원소(붕소 B)를 도핑할 때 발생하는 공유 결합의 변화를 나노 수준에서 관찰하고, 전류가 흐르는 원리를 미션을 통해 정밀하게 제어해 봅니다.</p>
+      </div>
+      <button class="modal-btn" id="start-lab-btn">실험 시작하기 🧪</button>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <span class="logo-icon">⚡</span>
+        <h1>SemiconDope <span>Lab</span></h1>
+      </div>
+      <div class="stage-navigator">
+        <button class="stage-btn active" id="stage1-btn" data-stage="1">Stage 1: N형 반도체</button>
+        <button class="stage-btn locked" id="stage2-btn" data-stage="2" disabled>Stage 2: P형 반도체 <span class="lock-icon">🔒</span></button>
+        <button class="stage-btn locked" id="stage3-btn" data-stage="3" disabled>Stage 3: 정밀 제어 <span class="lock-icon">🔒</span></button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Left Panel: Animation Canvas -->
+      <section class="visualizer-panel card">
+        <div class="panel-header">
+          <h2>실리콘 결정 격자 구조 (2D)</h2>
+          <div class="status-indicator">
+            <span class="indicator-dot blinking" id="status-glow"></span>
+            <span id="status-text">대기 중</span>
+          </div>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas id="lattice-canvas"></canvas>
+          <div class="canvas-overlay-legend">
+            <div class="legend-item"><span class="legend-color si"></span>실리콘 (Si)</div>
+            <div class="legend-item dopant-p-legend"><span class="legend-color p"></span>인 (P, N형)</div>
+            <div class="legend-item dopant-b-legend"><span class="legend-color b"></span>붕소 (B, P형)</div>
+            <div class="legend-item"><span class="legend-color electron"></span>자유 전자</div>
+            <div class="legend-item"><span class="legend-color hole"></span>양공 (Hole)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Panel: Controls & Gauges -->
+      <section class="control-panel">
+        <!-- Mission Info Card -->
+        <div class="mission-card card">
+          <div class="mission-badge">MISSION</div>
+          <h3 id="mission-title">Stage 1: N형 반도체 제조</h3>
+          <p id="mission-desc">인(P)을 도핑하여 격자 내에 잉여 전자를 만들고, 전류 전도도를 70% 이상으로 높여 전구를 환하게 밝히세요!</p>
+          <div class="mission-target">
+            <span>목표 전도도:</span>
+            <strong id="mission-target-value">70% 이상</strong>
+          </div>
+        </div>
+
+        <!-- Inputs Card -->
+        <div class="inputs-card card">
+          <h3>도핑 조작 변수</h3>
+          
+          <div class="control-group">
+            <label>1. 활성화된 도펀트 (스테이지별 고정)</label>
+            <div class="dopant-display-info" id="locked-dopant-badge">
+              <div class="symbol-circle" id="dopant-badge-symbol">P</div>
+              <div class="dopant-details">
+                <div class="name" id="dopant-badge-name">인 (Phosphorus)</div>
+                <div class="valence" id="dopant-badge-valence">5가 원소 (최외각 5)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="slider-header">
+              <label for="concentration-slider">2. 도핑 농도 조절</label>
+              <span class="slider-value" id="concentration-val">0 %</span>
+            </div>
+            <input type="range" id="concentration-slider" min="0" max="100" value="0" step="5" class="custom-slider">
+            <div class="slider-labels">
+              <span>순수 실리콘</span>
+              <span>고농도 도핑</span>
+            </div>
+          </div>
+
+          <!-- Verify Doping Button -->
+          <button class="verify-action-btn" id="verify-btn">반도체 검증하기 (결정) 🔍</button>
+        </div>
+
+        <!-- Dashboard Outputs Card -->
+        <div class="dashboard-card card">
+          <h3>측정 데이터 & 출력 회로</h3>
+          
+          <div class="gauge-section">
+            <div class="gauge-container">
+              <svg class="progress-ring" width="120" height="120">
+                <circle class="progress-ring__circle-bg" stroke="#1f2335" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                <circle class="progress-ring__circle" id="conductivity-gauge" stroke="#00f3ff" stroke-width="8" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314.16" stroke-dashoffset="314.16"/>
+              </svg>
+              <div class="gauge-value">
+                <span id="gauge-percent">0%</span>
+                <span class="label">전기 전도도</span>
+              </div>
+            </div>
+
+            <div class="circuit-container">
+              <div class="circuit-board-gfx">
+                <!-- SVG Wire pathways with dashed animatable current -->
+                <svg width="140" height="70" class="circuit-svg">
+                  <path d="M 10 35 L 50 35" stroke="#2a2f4a" stroke-width="4" fill="none" />
+                  <path id="current-line-left" d="M 10 35 L 50 35" stroke="#ffe600" stroke-width="4" stroke-dasharray="8,8" stroke-dashoffset="0" fill="none" opacity="0"/>
+                  <path d="M 90 35 L 130 35" stroke="#2a2f4a" stroke-width="4" fill="none" />
+                  <path id="current-line-right" d="M 90 35 L 130 35" stroke="#ffe600" stroke-width="4" stroke-dasharray="8,8" stroke-dashoffset="0" fill="none" opacity="0"/>
+                </svg>
+                <div class="bulb" id="led-bulb">
+                  <div class="bulb-glow" id="bulb-glow"></div>
+                  <div class="filament"></div>
+                </div>
+              </div>
+              <span class="bulb-label">실시간 연동 LED 회로</span>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">주요 캐리어</span>
+              <span class="stat-val" id="carrier-type">없음 (순수)</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">에너지 상태</span>
+              <span class="stat-val" id="energy-state">부도체 상태</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="success-modal">
+      <div class="modal-content">
+        <div class="success-icon">🎉</div>
+        <h2>미션 완료!</h2>
+        <p id="success-message">N형 반도체를 성공적으로 완성하여 전구가 밝게 켜졌습니다.</p>
+        <button class="modal-btn" id="next-stage-btn">다음 미션으로</button>
+      </div>
+    </div>
+
+    <!-- Failure Modal -->
+    <div class="modal-overlay" id="fail-modal">
+      <div class="modal-content">
+        <div class="success-icon" style="animation: none;">❌</div>
+        <h2 style="color: #ff4a4a;">검증 실패!</h2>
+        <p id="fail-message">원하는 만큼 전도도가 확보되지 않았거나, 도핑 조건이 맞지 않습니다. 전도도 목표 수치를 만족하도록 슬라이더 값을 조정한 뒤 다시 시도해 주세요.</p>
+        <button class="modal-btn" id="retry-btn" style="background: #ff4a4a; box-shadow: 0 0 15px rgba(255, 74, 74, 0.4);">다시 조정하기</button>
+      </div>
+    </div>
+
+    <!-- Final Game Clear Modal -->
+    <div class="modal-overlay" id="clear-modal">
+      <div class="modal-content">
+        <div class="success-icon">🏆</div>
+        <h2>실험 마스터!</h2>
+        <p>반도체 도핑의 핵심인 N형(5가 원소 도핑 - 자유전자 형성)과 P형(3가 원소 도핑 - 양공 형성)의 결합 원리를 완벽하게 마스터하셨습니다!</p>
+        <button class="modal-btn" id="restart-btn">다시 처음부터 실험하기</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="index.js"></script>
+</body>
+</html>
